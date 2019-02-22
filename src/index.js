@@ -46,7 +46,8 @@ async function main() {
 			file =>
 				extensions.length === 0 || extensions.includes(path.extname(file)),
 		)
-		.filter(file => fs.existsSync(file) && fs.statSync(file).isFile());
+		.filter(file => fs.existsSync(file) && fs.statSync(file).isFile())
+		.map(file => path.relative(process.cwd(), file));
 
 	if (filteredFiles.length === 0) {
 		return;
