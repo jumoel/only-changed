@@ -4,6 +4,25 @@
   "description": "Runs the superceding command only on changed files",
   "main": "index.js",
   "repository": "https://github.com/jumoel/only-changed.git",
+  "homepage": "https://github.com/jumoel/only-changed",
   "author": "Julian Møller Ellehauge <git@jumoel.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "bin": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "babel --source-root ./src --minified -d dist src/*"
+  },
+  "dependencies": {
+    "commander": "^2.19.0",
+    "jest-changed-files": "^24.0.0",
+    "yargs": "^13.2.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.3",
+    "@babel/preset-env": "^7.3.1",
+    "eslint": "^5.14.1"
+  }
 }
