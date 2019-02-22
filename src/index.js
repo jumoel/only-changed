@@ -3,6 +3,7 @@
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const { getChangedFilesForRoots } = require('jest-changed-files');
 
 const yargs = require('yargs')
@@ -53,7 +54,7 @@ async function main() {
 
 	const args = scriptArgs.concat(filteredFiles);
 
-	const child = spawn(script, args);
+	const child = spawn(script, args, { shell: os.platform() === 'win32' });
 
 	child.stdout.pipe(process.stdout);
 	child.stderr.pipe(process.stderr);
