@@ -2,6 +2,7 @@
 
 const { spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 const { getChangedFilesForRoots } = require('jest-changed-files');
 
 const yargs = require('yargs')
@@ -34,13 +35,17 @@ async function main() {
 	const { script, _: scriptArgs, extensions, changedSince } = yargs;
 
 	const { changedFiles } = await getChangedFilesForRoots(['.'], {
+		roots: ['.'],
 		lastCommit: changedSince !== undefined ? undefined : true,
 		changedSince,
 	});
 
-	const filteredFiles = Array.from(changedFiles).filter(
-		file => extensions.length === 0 || extensions.includes(path.extname(file)),
-	);
+	const filteredFiles = Array.from(changedFiles)
+		.filter(
+			file =>
+				extensions.length === 0 || extensions.includes(path.extname(file)),
+		)
+		.filter(file => fs.existsSync(file) && fs.statSync(file).isFile());
 
 	if (filteredFiles.length === 0) {
 		return;
