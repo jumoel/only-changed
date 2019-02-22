@@ -1,10 +1,11 @@
+#!/usr/bin/env node
+
 const { spawn } = require('child_process');
 const path = require('path');
 const { getChangedFilesForRoots } = require('jest-changed-files');
-const { name } = require('./package.json');
 
 const yargs = require('yargs')
-	.scriptName(name)
+	.scriptName('only-changed')
 	.usage(
 		'$0 <script>',
 		'Run a script with changed files as arguments',
