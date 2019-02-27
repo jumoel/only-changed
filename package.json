@@ -15,7 +15,6 @@
     "build": "rimraf dist && babel --source-root ./src --minified -d dist src/*"
   },
   "dependencies": {
-    "commander": "^2.19.0",
     "jest-changed-files": "^24.0.0",
     "yargs": "^13.2.1"
   },
