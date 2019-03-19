@@ -24,6 +24,12 @@ const yargs = require('yargs')
 					string: true,
 					default: [],
 				})
+				.option('splitCommandLineOnWindows', {
+					boolean: true,
+					default: false,
+					describe:
+						'supplying this flag runs the command multiple times, if a single invocation would result in a too long argument list',
+				})
 				.positional('script', { string: true, demandOption: true });
 		},
 	)
@@ -32,8 +38,35 @@ const yargs = require('yargs')
 	.strict()
 	.parse();
 
+const MAX_WIN32_CLI_LENGTH = 8191;
+const IS_WINDOWS = os.platform() === 'win32';
+
+async function spawnPromise(script, args, options = {}) {
+	return new Promise((resolve, reject) => {
+		const child = spawn(script, args, options);
+
+		child.stdout.pipe(process.stdout);
+		child.stderr.pipe(process.stderr);
+
+		child.on('exit', (code, signal) => {
+			if (signal || code !== 0) {
+				reject({ code, signal });
+				return;
+			}
+
+			resolve();
+		});
+	});
+}
+
 async function main() {
-	const { script, _: scriptArgs, extensions, changedSince } = yargs;
+	const {
+		script,
+		_: scriptArgs,
+		extensions,
+		changedSince,
+		splitCommandLineOnWindows,
+	} = yargs;
 
 	const { changedFiles } = await getChangedFilesForRoots(['.'], {
 		roots: ['.'],
@@ -52,12 +85,37 @@ async function main() {
 		return;
 	}
 
-	const args = scriptArgs.concat(filteredFiles);
+	let buckets = 1;
 
-	const child = spawn(script, args, { shell: os.platform() === 'win32' });
+	if (splitCommandLineOnWindows && IS_WINDOWS) {
+		// The +1 is for the space between script and scriptArgs
+		const baseLength = script.length + scriptArgs.join(' ').length + 1;
+		const remainingLength = MAX_WIN32_CLI_LENGTH - baseLength;
+		const fileLength = filteredFiles.join(' ').length;
 
-	child.stdout.pipe(process.stdout);
-	child.stderr.pipe(process.stderr);
+		if (fileLength > remainingLength) {
+			// We use one more bucket than necessary, just to be more safe against
+			// outliers in path length ¯\_(ツ)_/¯
+			buckets = Math.ceil(fileLength / remainingLength) + 1;
+		}
+	}
+
+	const fileGroups = filteredFiles.reduce((acc, file, index) => {
+		const bucketNumber = index % buckets;
+
+		if (acc.length < bucketNumber + 1) {
+			acc.push([]);
+		}
+
+		acc[bucketNumber].push(file);
+
+		return acc;
+	}, []);
+
+	for (const files of fileGroups) {
+		const args = scriptArgs.concat(files);
+		await spawnPromise(script, args, { shell: IS_WINDOWS });
+	}
 }
 
 main();
