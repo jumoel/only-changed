@@ -37,7 +37,6 @@ async function main() {
 
 	const { changedFiles } = await getChangedFilesForRoots(['.'], {
 		roots: ['.'],
-		lastCommit: changedSince !== undefined ? undefined : true,
 		changedSince,
 	});
 
