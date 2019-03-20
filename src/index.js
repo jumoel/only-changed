@@ -43,10 +43,9 @@ const IS_WINDOWS = os.platform() === 'win32';
 
 async function spawnPromise(script, args, options = {}) {
 	return new Promise((resolve, reject) => {
-		const child = spawn(script, args, options);
+		const child = spawn(script, args, { ...options, stdio: 'inherit' });
 
-		child.stdout.pipe(process.stdout);
-		child.stderr.pipe(process.stderr);
+		child.on('error', reject);
 
 		child.on('exit', (code, signal) => {
 			if (signal || code !== 0) {
@@ -68,10 +67,19 @@ async function main() {
 		splitCommandLineOnWindows,
 	} = yargs;
 
-	const { changedFiles } = await getChangedFilesForRoots(['.'], {
-		roots: ['.'],
-		changedSince,
-	});
+	let changedFiles;
+
+	try {
+		const changedFilesForRoots = await getChangedFilesForRoots(['.'], {
+			roots: ['.'],
+			changedSince,
+		});
+
+		changedFiles = changedFilesForRoots.changedFiles;
+	} catch (err) {
+		console.error(err);
+		process.exit(1);
+	}
 
 	const filteredFiles = Array.from(changedFiles)
 		.filter(
@@ -113,9 +121,21 @@ async function main() {
 	}, []);
 
 	for (const files of fileGroups) {
-		const args = scriptArgs.concat(files);
-		await spawnPromise(script, args, { shell: IS_WINDOWS });
+		try {
+			const args = scriptArgs.concat(files);
+			await spawnPromise(script, args, { shell: IS_WINDOWS });
+		} catch (err) {
+			console.error(err);
+
+			const code = err.code || 1;
+			process.exit(code);
+		}
 	}
 }
 
-main();
+try {
+	main();
+} catch (err) {
+	console.error(err);
+	process.exit(1);
+}
