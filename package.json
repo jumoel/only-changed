@@ -1,6 +1,6 @@
 {
   "name": "only-changed",
-  "version": "1.0.1-beta.3",
+  "version": "1.0.1-beta.4",
   "description": "Runs the superceding command only on changed files",
   "main": "index.js",
   "repository": "https://github.com/jumoel/only-changed.git",
