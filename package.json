@@ -15,6 +15,7 @@
     "build": "rimraf dist && babel --source-root ./src --minified -d dist src/*"
   },
   "dependencies": {
+    "debug": "^4.1.1",
     "jest-changed-files": "^24.0.0",
     "yargs": "^13.2.1"
   },
@@ -23,6 +24,8 @@
     "@babel/core": "^7.3.3",
     "@babel/preset-env": "^7.3.1",
     "eslint": "^5.14.1",
+    "eslint-plugin-jest": "^22.4.1",
+    "jest": "^24.7.1",
     "rimraf": "^2.6.3"
   }
 }
