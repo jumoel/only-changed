@@ -1,6 +1,6 @@
 {
   "name": "only-changed",
-  "version": "1.0.1-beta.4",
+  "version": "1.0.1-beta.5",
   "description": "Runs the superceding command only on changed files",
   "main": "index.js",
   "repository": "https://github.com/jumoel/only-changed.git",
@@ -12,7 +12,7 @@
     "dist/"
   ],
   "scripts": {
-    "build": "rimraf dist && babel --source-root ./src --minified -d dist src/*",
+    "build": "rimraf dist && babel --ignore \"src/**/*.test.js\" --source-root ./src --minified -d dist src/*",
     "prepare": "$npm_execpath run build"
   },
   "dependencies": {
