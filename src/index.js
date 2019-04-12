@@ -44,6 +44,7 @@ debug('Parsed args: %o', yargs);
 
 const MAX_WIN32_CLI_LENGTH = 8191;
 const IS_WINDOWS = os.platform() === 'win32';
+const WIN32_COMSPEC_LENGTH = (process.env.COMSPEC || 'cmd.exe').length;
 
 async function spawnPromise(script, args, options = {}) {
 	return new Promise((resolve, reject) => {
@@ -104,7 +105,8 @@ async function main() {
 	}
 
 	const baseLength = script.length + scriptArgs.join(' ').length + 1;
-	const remainingLength = MAX_WIN32_CLI_LENGTH - baseLength;
+	const remainingLength =
+		MAX_WIN32_CLI_LENGTH - WIN32_COMSPEC_LENGTH - 1 - baseLength;
 
 	const fileGroups =
 		splitCommandLineOnWindows && IS_WINDOWS
