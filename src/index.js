@@ -44,7 +44,8 @@ debug('Parsed args: %o', yargs);
 
 const MAX_WIN32_CLI_LENGTH = 8191;
 const IS_WINDOWS = os.platform() === 'win32';
-const WIN32_COMSPEC_LENGTH = (process.env.COMSPEC || 'cmd.exe').length;
+const WIN32_COMSPEC_LENGTH =
+	(process.env.COMSPEC || 'cmd.exe').length + ' /d /s /c ""'.length;
 
 async function spawnPromise(script, args, options = {}) {
 	return new Promise((resolve, reject) => {
