@@ -12,7 +12,8 @@
     "dist/"
   ],
   "scripts": {
-    "build": "rimraf dist && babel --source-root ./src --minified -d dist src/*"
+    "build": "rimraf dist && babel --source-root ./src --minified -d dist src/*",
+    "prepare": "$npm_execpath run build"
   },
   "dependencies": {
     "debug": "^4.1.1",
